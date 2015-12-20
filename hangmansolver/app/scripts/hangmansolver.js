@@ -1,9 +1,12 @@
 'use strict';
 
 /**
- * Object like class Solver
+ * Object-like class Solver
  */
-var Solver = (function(){
+var Solver = (function($){
+  // Initialize object-like class
+  var Solver = function(){};
+
   // Attributes
   Solver.prototype.letters = {
     'a': 0,
@@ -35,20 +38,30 @@ var Solver = (function(){
   };
   Solver.prototype.word = '';
   Solver.prototype.words = [];
+  Solver.prototype.dictionary = null;
 
-  //Methods
-  Solver.prototype.getWords = function(){
+  // Methods
+  Solver.prototype.setDictionary = function(done){
+    var _this = this;
+    $.get('/words.txt').done(function(data){
 
+      _this.dictionary = data;
+
+      if(done instanceof Function){
+        done();
+      }
+
+    });
+  }
+  Solver.prototype.getWords = function(regex){
   }
   Solver.prototype.countLetters = function(){
-
   }
   Solver.prototype.sort = function(){
-
   }
 
   return Solver;
-})();
+})(jQuery);
 
 
 var HangmanSolver = (function(G, S){

@@ -1,0 +1,8 @@
+{
+  "name": "hangmansolver",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "jasmine-core": "jasmine#~2.4.1"
+  }
+}
