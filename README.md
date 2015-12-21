@@ -19,11 +19,7 @@ The game gives a few parameters to consider, one of them is the length. Since th
 
 The script count the words per letter, and the letters are sort in a descendant order, the most common letter is the one used to guess, followed by the next one.
 
-```
-node groupwords.js
-```
-
-The script is execute when the file index.html is open.
+The script is executed when the file index.html is open.
 
 ## Script and test files
 
