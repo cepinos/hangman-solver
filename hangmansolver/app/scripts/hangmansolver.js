@@ -207,5 +207,6 @@ var HangmanSolver = (function(G, S, $){
 })(Game, Solver, jQuery);
 
 jQuery(document).on('ready',function(){
+  jQuery('body').html('processing...');
   HangmanSolver.play();
 });
