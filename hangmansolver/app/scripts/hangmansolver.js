@@ -51,7 +51,8 @@ var Solver = (function($){
    * @return {array} [words filtered]
    */
   Solver.prototype.getWordsOfLength = function(length){
-    var regex = new RegExp('^.{' + length + '}$', 'gm');
+    var len = length || this.word.length,
+    regex = new RegExp('^.{' + len + '}$', 'gm');
     this.words = this.dictionary.match(regex);
     return this.words;
   }
@@ -60,8 +61,9 @@ var Solver = (function($){
    * @param  {string} exp [the word given by the game (i.e, '*a*k')]
    * @return {array} [filtered list]
    */
-  Solver.prototype.filterWords = function(exp){
-    var regex = parseGuessingWordtoRegExp(exp);
+  Solver.prototype.filterWords = function(expWord){
+    var exp = expWord || word,
+    regex = parseGuessingWordtoRegExp(exp);
 
     this.words = this.words.filter(function(word){
       var match = word.match(regex);
@@ -98,6 +100,9 @@ var Solver = (function($){
     this.lettersSorted = keys.sort(function(a,b){return list[a]-list[b]})
     return this.lettersSorted;
   }
+  Solver.prototype.start = function(){
+    this.setDictionary();
+  }
 
   return Solver;
 })(jQuery);
@@ -106,8 +111,83 @@ var Solver = (function($){
 var HangmanSolver = (function(G, S){
   // private attributes
   var solver,
+  game,
+  wordsPlayed = 0,
   // private methods
+  /**
+   * initialize solver and game objects
+   */
   initialize = function(){
+    // initialize solver
+    solver = new S;
+    solver.start();
 
+    // initialize Game
+    game = G;
+    game.start();
+
+  },
+  /**
+   * Start game, ask for a new word
+   */
+  start = function(){
+    solver.word = game.start();
+    solver.getWordsOfLength();
+    countAndSort();
+  },
+  /**
+   * count letters and sort
+   */
+  countAndSort = function(){
+    solver.countLetters();
+    solver.sort();
+  },
+  /**
+   * Guess giving a letter, the most common one
+   * return {Number|String|Boolean} the anser from the game
+   */
+  guess = function(){
+    var letter = solver.lettersSorted.pop();
+    return game.guess();
+  },
+  /**
+   * executes the algorithm to guess the words
+   */
+  play = function(){
+    var answer = null;
+    wordsPlayed = 0;
+    initialize();
+
+    while(wordsPlayed < 50){
+      start();
+
+      recursiveGuess();
+
+      game.result();
+    }
+  },
+  recursiveGuess = function(){
+      answer = guess();
+
+      if ( answer === -2 || answer === true  ){
+        // look for next word, current word finished
+        wordsPlayed++;
+      }else if( answer === false || answer === -1 || answer === -3 ){
+        recursiveGuess();
+      }else if( answer.constructor === String ){
+        solver.word = answer;
+        solver.filterWords();
+        countAndSort();
+        recursiveGuess();
+      }
+  };
+
+  return {
+    play: play
   }
+
 })(Game, Solver);
+
+jQuery(document).on('load',function(){
+  HangmanSolver.play();
+});
