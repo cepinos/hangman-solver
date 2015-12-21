@@ -115,7 +115,7 @@ var Solver = (function($){
 })(jQuery);
 
 
-var HangmanSolver = (function(G, S){
+var HangmanSolver = (function(G, S, $){
   // private attributes
   var solver,
   game,
@@ -127,12 +127,20 @@ var HangmanSolver = (function(G, S){
   initialize = function(){
     // initialize Game
     game = G;
-    var a = game.start();
+    game.start();
 
+    // Promise for game async loading data.
+    var dfd = jQuery.Deferred();
+    $(document).ajaxStop(function() {
+      // resolve when game downloads words.txt
+      dfd.resolve();
+    });
 
     // initialize solver
     solver = new S;
-    return solver.setDictionary();
+
+    // Return promises for async functions
+    return $.when(solver.setDictionary(), dfd.promise());
   },
   /**
    * Start game, ask for a new word
@@ -165,7 +173,7 @@ var HangmanSolver = (function(G, S){
   play = function(){
     var next = false;
     initialize().then(function(){
-      while(wordsPlayed < 1){
+      while(wordsPlayed < 50){
         start(next);
 
         recursiveGuess();
@@ -196,7 +204,7 @@ var HangmanSolver = (function(G, S){
     play: play
   }
 
-})(Game, Solver);
+})(Game, Solver, jQuery);
 
 jQuery(document).on('ready',function(){
   HangmanSolver.play();
